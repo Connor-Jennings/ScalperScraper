@@ -6,14 +6,14 @@ from commonOperations import *
 # lets define our phone books 
 axs_phoneBook = {
     "Santa Barbara Bowl" : "https://www.axs.com/venues/101207/santa-barbara-bowl-santa-barbara-tickets?q=santa+barbara+bowl&cat=7",
-    "Fonda Theatre" : "https://www.axs.com/venues/120969/fonda-theatre-los-angeles-tickets?q=The+Fonda+Theatre+LA&cat=7",
-    "The Forum" : "https://www.axs.com/venues/101627/the-forum-inglewood-tickets?q=the+forum&cat=7",
-    "The Greek Theatre LA" : "https://www.axs.com/venues/101546/the-greek-theatre-los-angeles-tickets?q=Greek+theatre&cat=7",
-    "The Greek Theatre at U.C Berkeley" : "https://www.axs.com/venues/100974/the-greek-theatre-at-u-c-berkeley-berkeley-tickets?q=Greek+theatre&cat=7",
+    "The Fonda Theatre" : "https://www.axs.com/venues/120969/fonda-theatre-los-angeles-tickets?q=The+Fonda+Theatre+LA&cat=7",
+    "The Forum Inglewood" : "https://www.axs.com/venues/101627/the-forum-inglewood-tickets?q=the+forum&cat=7",
+    "Greek Theatre Los Angeles" : "https://www.axs.com/venues/101546/the-greek-theatre-los-angeles-tickets?q=Greek+theatre&cat=7",
+    "Greek Theatre-U.C. Berkeley" : "https://www.axs.com/venues/100974/the-greek-theatre-at-u-c-berkeley-berkeley-tickets?q=Greek+theatre&cat=7",
     # "Hollywood Bowl" : "https://www.axs.com/venues/101545/hollywood-bowl-hollywood-tickets?q=hollywood+bowl&cat=7" NOT ON axs
     # Neither is honda center
     "Microsoft Theater" :"https://www.axs.com/venues/101406/microsoft-theater-los-angeles-tickets?q=microsoft+theatre&cat=7",
-    "The Novo" : "https://www.axs.com/venues/101912/the-novo-los-angeles-tickets?q=The+Novo&cat=7",
+    "The Novo by Microsoft" : "https://www.axs.com/venues/101912/the-novo-los-angeles-tickets?q=The+Novo&cat=7",
     "Shrine Auditorium" : "https://www.axs.com/venues/123568/shrine-auditorium-los-angeles-tickets?q=shrine+auditorium&cat=7",
     "STAPLES Center" : "https://www.axs.com/venues/101242/staples-center-los-angeles-tickets?q=staples+center&cat=7"
     # Nothing for grammy museum 
