@@ -16,12 +16,12 @@ def mail(email_address):
     message['To'] = email_address 
     # message['CC'] = 'contact@company.com'
     message['Subject'] = 'Tickets'
-    
+
 
     # open json file and parse data for email body 
     w = open("./JsonFiles/newEventsFound.json", "rt")
     newEvents = json.load(w)
-    msg_content = "New Events Posted: \n\n"
+    msg_content = "Events added or changed : \n\n"
     if len(newEvents) > 0 :
         for event in newEvents:
             msg_content += event['event'] + "\n"
@@ -69,10 +69,10 @@ def mail(email_address):
 
 
 def main():
-    # os.system("python3 alltogethernow.py")
+    os.system("python3 alltogethernow.py")
     os.system("python3 parseData.py")
 
-    recipients = ['jennings.co.d@gmail.com', 'connorwork123321@gmail.com']
+    recipients = ['jennings.co.d@gmail.com']
     for x in recipients:
         mail(x)
 

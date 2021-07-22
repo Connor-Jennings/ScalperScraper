@@ -3,11 +3,15 @@ import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
 import time
 # for ticketmaster 
 import ticketpy
 # for both 
 import json
+import re
+import datetime
+
 
 
 # singleton class to build json object 
@@ -32,6 +36,58 @@ class JsonInstance:
         f = open("./JsonFiles/newDay.json", "w")
         f.write(json.dumps(self.json_array))
         f.close() 
+
+# for better formatting the axs dates
+def date_strip(date):
+    date = re.sub("\n", "", date)
+    date = re.sub("  ", "", date)
+    date = re.sub("Starting", "", date)
+    return date
+
+# put the dates into a standard format
+def format_date(u_date,site):
+    if u_date == "None":
+        return u_date
+    elif u_date == "TBD":
+        return u_date 
+
+    elif site == "Ticketmaster":
+        split = re.split("-", u_date)
+        year = int(split[0])
+        month = int(split[1])
+        remaining = split[2]
+        split_remaining = re.split(" ", remaining)
+        day = int(split_remaining[0])
+        date = datetime.datetime(year, month, day)
+        return str(date.strftime("%x"))
+       
+
+
+    elif site == "axs":
+        split = re.split("-", u_date)
+        split = re.split(" ", u_date)
+        
+        months ={
+            "Jan" : "01",
+            "Feb" : "02",
+            "Mar" : "03",
+            "Apr" : "04",
+            "May" : "05",
+            "Jun" : "06",
+            "Jul" : "07",
+            "Aug" : "08",
+            "Sep" : "09",
+            "Oct" : "10",
+            "Nov" : "11",
+            "Dec" : "12"
+        }
+
+        year = split[3][2] + split[3][3]
+        month = months[split[1]]
+        day = re.split(",",split[2])[0] 
+
+        return month+"/"+day+"/"+year
+
 
 
 def main():
@@ -89,7 +145,8 @@ def main():
         for events in attractions:
             for details in events:
                 headliner_array.append(str(details.name).strip())
-                date_array.append(str(details.utc_datetime).strip())
+                date = format_date(str(details.utc_datetime).strip(), "Ticketmaster")
+                date_array.append(date)
                 status_array.append(str(details.status).strip())
                 link_array.append(str(details.json['url']).strip())
 
@@ -104,12 +161,18 @@ def main():
     # Now find axs data  #####################################################################################################
 
     for listing in axs_phoneBook:
-        #initiating the web driver. parameter includes the path of the webdriver
-        driver = webdriver.Chrome('./chromedriver')
+        # initiating the web driver
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--no-sandbox")
+        driver = webdriver.Chrome('./chromedriver', options=chrome_options)
         driver.get(axs_phoneBook[listing])  # get(url)
 
-        #just to ensure the page is loaded
-        time.sleep(5)
+        # just to ensure the page is loaded
+        # time.sleep(2.5)
 
         # get the source html 
         html = driver.page_source
@@ -148,15 +211,17 @@ def main():
             
         for date in featured_dates:
             broke_date = str(date.text).strip().splitlines()
-            fixed_date = broke_date[0]
-            date_array.append(fixed_date)
+            fixed_date = date_strip(broke_date[0])
+            final_date = format_date(fixed_date, "axs")
+            date_array.append(final_date)
             venue_array.append(listing)
         
         for headliner in upcoming_headliners:
             headliner_array.append(str(headliner.text).strip())
             
         for date in upcoming_dates:
-            date_array.append(str(date.text).strip())
+            final_date = format_date(date_strip(str(date.text).strip()), "axs")
+            date_array.append(final_date)
             venue_array.append(listing)
             
         for link in upcoming_ticketLink:
