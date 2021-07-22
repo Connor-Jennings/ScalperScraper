@@ -145,5 +145,5 @@ for listing in axs_phoneBook:
 
 
 # finally output json object 
-data.print()
+data.prnt()
 exit(0)

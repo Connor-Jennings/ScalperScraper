@@ -18,5 +18,9 @@ class JsonInstance:
         self.json_array.append(output)
 
 
-    def print(self):
-        print(json.dumps(self.json_array))
+    def prnt(self):
+        today = date.today()
+        filename = str(today)+".json"
+        f = open(filename, "w")
+        f.write(json.dumps(self.json_array))
+        f.close() 
