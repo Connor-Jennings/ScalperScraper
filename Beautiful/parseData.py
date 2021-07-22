@@ -34,20 +34,29 @@ def replaceOldFileWithNew():
     w.close()
 
 
-def findNewEntries(json_data):
-    i=0
-    for datapoint in json_data:
-        i += 1
-    print(i)
+def findNewEntries(new_data, old_data):
+    new_entries = []
+    i = 0 
+    while i < len(new_data):
+        if  new_data[i] not in old_data:
+            new_entries.append(new_data[i])
+        i+=1
+    return new_entries
 
 
 def main():
     f = open("./JsonFiles/newDay.json", "rt")
-    json_data = json.load(f)
+    new_data = json.load(f)
+    f.close()
+    f = open("./JsonFiles/oldDay.json", "rt")
+    old_data = json.load(f)
     f.close()
 
-    findNewEntries(json_data)
-    #storeNewDay()
+    newEvents = findNewEntries(new_data, old_data)
+    w = open("./JsonFiles/newEventsFound.json", "w")
+    w.write(json.dumps(newEvents))
+    
+    storeNewDay()
     #monthlyStorage()
     #replaceOldFileWithNew()
 
