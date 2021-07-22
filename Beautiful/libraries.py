@@ -8,9 +8,7 @@ import time
 # for ticketmaster 
 import ticketpy
 
-#for both 
+# for both 
 import json
 
-#for commonOperations
-from datetime import date
 
