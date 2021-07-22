@@ -25,7 +25,7 @@ def monthlyStorage():
         f.close() 
         w.close()
 
-def replaceOldFileWithNew():
+def replaceOldDayWithNew():
     #update "oldDay.json" with today's data 
     f = open("./JsonFiles/newDay.json", "rt")
     w = open("./JsonFiles/oldDay.json", "w")
@@ -55,10 +55,10 @@ def main():
     newEvents = findNewEntries(new_data, old_data)
     w = open("./JsonFiles/newEventsFound.json", "w")
     w.write(json.dumps(newEvents))
-    
+
     storeNewDay()
     #monthlyStorage()
-    #replaceOldFileWithNew()
+    replaceOldDayWithNew()
 
 
 if __name__ == "__main__":
