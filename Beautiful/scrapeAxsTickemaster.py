@@ -61,8 +61,6 @@ def format_date(u_date,site):
         date = datetime.datetime(year, month, day)
         return str(date.strftime("%x"))
        
-
-
     elif site == "axs":
         split = re.split("-", u_date)
         split = re.split(" ", u_date)

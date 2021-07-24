@@ -38,11 +38,101 @@ def find_by_label(soup, tag,  label):
     return soup.find(tag, text=re.compile(label)).next_sibling
 
 #####################################################################################################################################
-def name_strip(u_name):
-    u_name = re.sub("\n", "", u_name)
-    u_name = re.sub("\t", "", u_name)
-    return u_name
+def strip(u_name):
+    name = re.sub("\n", "", u_name)
+    name = re.sub("\t", "", name)
+    return name
 
+#####################################################################################################################################
+def format_date(u_date,site):
+    months ={
+        "Jan" : "01",
+        "Feb" : "02",
+        "Mar" : "03",
+        "Apr" : "04",
+        "May" : "05",
+        "Jun" : "06",
+        "Jul" : "07",
+        "Aug" : "08",
+        "Sep" : "09",
+        "Oct" : "10",
+        "Nov" : "11",
+        "Dec" : "12",
+        "January" : "01",
+        "February" : "02",
+        "March" : "03",
+        "April" : "04",
+        "June" : "06",
+        "July" : "07",
+        "August" : "08",
+        "September" : "09",
+        "October" : "10",
+        "November" : "11",
+        "December" : "12"
+    }
+    if u_date == "None":
+        return u_date
+    elif u_date == "TBD":
+        return u_date 
+
+    elif site == "Ticketmaster":
+        split = re.split("-", u_date)
+        year = int(split[0])
+        month = int(split[1])
+        remaining = split[2]
+        split_remaining = re.split(" ", remaining)
+        day = int(split_remaining[0])
+        date = datetime.datetime(year, month, day)
+        return str(date.strftime("%x"))
+    
+    elif site == "axs":
+        split = re.split("-", u_date) ########## idk if this is necessary  -> go back and test this
+        split = re.split(" ", u_date)
+
+        year = split[3][2] + split[3][3]
+        month = months[split[1]]
+        day = re.split(",",split[2])[0] 
+
+        return month+"/"+day+"/"+year
+    
+    elif site == "fonda" or site == "sbbowl":
+        split = re.sub(",", "", u_date)
+        split = re.split(" ", split)
+
+        year = split[3][2] + split[3][3]
+        month = months[split[1]]
+        day = split[2]
+        
+        return month+"/"+day+"/"+year
+
+    elif site == "forum":
+        u_date = re.sub(",", "", u_date)
+        split = re.split(" ", u_date)
+        try:
+            year = split[2][2] + split[2][3]
+            date = months[split[0]] + "/"
+            if int(split[1]) < 10:
+                split[1] = "0"+split[1]
+            date += split[1]+"/"
+            date += year
+            return date
+        except:
+            year = str(datetime.date.today().year)
+            year = year[2]+year[3]
+            date = months[str(split[0])] + "/"
+            if int(split[1]) < 10:
+                split[1] = "0"+split[1]
+            date += split[1]+"/"
+            date += year
+            return date
+
+#####################################################################################################################################
+def find_year(element):
+    if hasattr(element.div.previous_sibling, "tribe-events-calendar-list__month-separator"):
+        return str(element.text).strip()
+    else:
+        find_year(element.previous_sibling)
+        
 
 #####################################################################################################################################
 def templateFunction(data):
@@ -82,7 +172,7 @@ def templateFunction(data):
     # iterate through arrays and add to json object 
     i = 0
     while(i < len(headliner_array)):
-        data.append("Venue Site", "www.venue.com", headliner_array[i], date_array[i], link_array[i])
+        data.append("Venue Website", "venue name", headliner_array[i], date_array[i], link_array[i])
         i+=1
 
     # close the connection 
@@ -126,7 +216,7 @@ def SB(data):
     date_parents = soup.find_all('div', class_='span7 concertEmbedDeets')
     for date_parent in date_parents: 
         date = find_by_label(date_parent,'span', 'Date:')
-        date_array.append(str(date).strip())
+        date_array.append(format_date(str(date).strip(), "sbbowl"))
 
 
     # select link and add to array 
@@ -138,7 +228,7 @@ def SB(data):
     # add data to json object 
     i = 0
     while(i < len(headliner_array)):
-        data.append("Venue Site", "Santa Barbara Bowl", headliner_array[i], date_array[i], link_array[i]) 
+        data.append("Venue Website", "Santa Barbara Bowl", headliner_array[i], date_array[i], link_array[i]) 
         i+=1
 
     # close the connection 
@@ -173,23 +263,17 @@ def fonda(data):
     headliners = soup.find_all('h3', attrs={"class": "carousel_item_title_small"})
     for headliner in headliners:
         name = headliner.find('a').text
-        name.get('')
-        name = name.encode('utf8')
-        name = str(name).strip()
-        name = name_strip(name)
+        name = strip(name)
         headliner_array.append(name)
 
 
     # select date and add to array 
-    # dates = soup.find_all('span', class_="date")
-    # for date in dates:
-    #     date = date.find('span')
-    #     print(date)
-        # date = find_by_label(date,'span', '::before')
-        # date_string = date_string.text
-        # date_string = name.encode('utf8')
-        # date_string = str(date_string).strip()
-        # date_array.append(name)
+    dates = soup.find_all('div', class_="date-time-container")
+    for date in dates:
+        date = date.find('span', class_="date").text
+        date = strip(date)
+        date = format_date(date, "fonda")
+        date_array.append(date)
 
     # select link and add to array 
     ticketLinks = soup.find_all('div', class_='buttons')
@@ -202,7 +286,7 @@ def fonda(data):
     # iterate through arrays and add to json object 
     i = 0
     while(i < len(headliner_array)):
-        data.append("Venue Site", "The Fonda Theatre", headliner_array[i], "date_array[i]",link_array[i])
+        data.append("Venue Website", "The Fonda Theatre", headliner_array[i], date_array[i],link_array[i])
         i+=1
 
     # close the connection 
@@ -211,7 +295,50 @@ def fonda(data):
 
 # Scrape The Forum Inglewood ########################################################################################################
 def forum(data): 
-    return 
+    # initiating the web driver
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome('./chromedriver', options=chrome_options)
+    driver.get('https://thelaforum.com/events/list/') 
+
+    # get the source html 
+    html = driver.page_source
+    # render all JS and stor as static html
+    soup = BeautifulSoup(html, "html.parser")
+
+    # create arrays to fill with data 
+    venue_array = []
+    headliner_array = []
+    incomplete_dates = []
+    date_array = []
+    link_array = []
+
+    # select headliner and add to array  and ticket link
+    headliners = soup.find_all('a', class_='tribe-events-calendar-list__event-title-link tribe-common-anchor-thin')
+
+    for headliner in headliners:
+        headliner_array.append(str(headliner.text).strip())
+        link_array.append(str(headliner['href']).strip())
+
+    # select date and add to array 
+    date = soup.find_all('span', class_="tribe-event-date-start")
+    for day in date:
+        day = format_date(str(day.text), 'forum')
+        date_array.append(day)
+   
+    # # iterate through arrays and add to json object 
+    i = 0
+    while(i < len(headliner_array)):
+        data.append("Venue Website", "The Forum Inglewood",headliner_array[i], date_array[i], link_array[i])
+        i+=1
+
+    # close the connection 
+    driver.close() 
+    return
 
 # Scrape Greek Theatre Los Angeles ##################################################################################################
 def greekLA(data):
@@ -258,20 +385,21 @@ def main():
     # create json instance 
     global data
     data = JsonInstance([])
+
     
     # collect data from each website 
-    #SB(data)
-    fonda(data)
+    # SB(data)
+    # fonda(data)
     forum(data)
-    greekLA(data)
-    greekBerkley(data)
-    hollywood(data)
-    honda(data)
-    microsoft(data)
-    novo(data)
-    shrine(data)
-    staples(data)
-    grammy(data)
+    # greekLA(data)
+    # greekBerkley(data)
+    # hollywood(data)
+    # honda(data)
+    # microsoft(data)
+    # novo(data)
+    # shrine(data)
+    # staples(data)
+    # grammy(data)
 
     # output to json file 
     data.output("venueSitesData.json")
