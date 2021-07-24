@@ -69,7 +69,7 @@ def mail(email_address):
 
 
 def main():
-    os.system("python3 alltogethernow.py")
+    os.system("python3 scrapeAxsTickemaster.py")
     os.system("python3 parseData.py")
 
     recipients = ['jennings.co.d@gmail.com']

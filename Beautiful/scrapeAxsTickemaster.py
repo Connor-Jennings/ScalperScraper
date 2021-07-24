@@ -200,7 +200,7 @@ def main():
         date_array = []
         link_array = []
 
-        # print what was grabbed 
+        # append data to arrays
         for headliner in featured_headliner1:
             headliner_array.append(str(headliner.text).strip())
             link_array.append(str(headliner['href']).strip())
