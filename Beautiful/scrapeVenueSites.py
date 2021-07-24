@@ -126,6 +126,30 @@ def format_date(u_date,site):
             date += year
             return date
 
+    elif site == "greekla":
+        split = re.sub(',', '', u_date)
+        split = re.sub("  ", " ", split)
+        split = re.split(" ", split)
+        date = months[str(split[2])] + "/"
+        if int(split[3]) < 10:
+            split[3] = "0"+split[3]
+        date += split[3]+"/"
+        year= str(split[4])
+        date += year[2] + year[3]
+        return date
+
+    elif site == 'greekberkley':
+        split = re.sub(',', '', u_date)
+        split = re.sub("  ", " ", split)
+        split = re.split(" ", split)
+        date = months[str(split[0])] + "/"
+        if int(split[1]) < 10:
+            split[1] = "0"+split[1]
+        date += split[1]+"/"
+        year= str(split[2])
+        date += year[2] + year[3]
+        return date
+
 #####################################################################################################################################
 def find_year(element):
     if hasattr(element.div.previous_sibling, "tribe-events-calendar-list__month-separator"):
@@ -342,15 +366,150 @@ def forum(data):
 
 # Scrape Greek Theatre Los Angeles ##################################################################################################
 def greekLA(data):
-    return 
+    # initiating the web driver
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome('./chromedriver', options=chrome_options)
+    driver.get('https://www.lagreektheatre.com/events/all') 
+
+    # get the source html 
+    html = driver.page_source
+    # render all JS and stor as static html
+    soup = BeautifulSoup(html, "html.parser")
+
+    # create arrays to fill with data 
+    venue_array = []
+    headliner_array = []
+    date_array = []
+    link_array = []
+
+    # select headliner and add to array and link
+    headliners = soup.find_all('a', attrs={'title':'More Info'})
+
+    for headliner in headliners:
+        headliner_array.append(str(headliner.text).strip())
+        link_array.append(str(headliner['href']).strip())
+
+    # select date and add to array 
+    dates = soup.find_all('span', class_="m-date__singleDate")
+    
+    for date in dates:
+        date_array.append(format_date(str(date.text).strip(),'greekla'))
+
+    # iterate through arrays and add to json object 
+    i = 0
+    while(i < len(headliner_array)):
+        data.append("Venue Website", "Greek Theatre Los Angeles", headliner_array[i], date_array[i], link_array[i])
+        i+=1
+
+    # close the connection 
+    driver.close() 
+    return
+   
 
 # Scrape Greek Theatre-U.C. Berkeley ################################################################################################
 def greekBerkley(data):
-    return 
+    # initiating the web driver
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome('./chromedriver', options=chrome_options)
+    driver.get('https://thegreekberkeley.com/event-listing/') 
+
+    # get the source html 
+    html = driver.page_source
+    # render all JS and stor as static html
+    soup = BeautifulSoup(html, "html.parser")
+
+    # create arrays to fill with data 
+    venue_array = []
+    headliner_array = []
+    date_array = []
+    link_array = []
+
+    # select headliner and add to array 
+    headliners = soup.find_all('h2', class_='show-title')
+
+    for headliner in headliners:
+        headliner_array.append(str(headliner.text).strip())
+        
+
+    # select date and add to array 
+    dates = soup.find_all('div', class_='date-show')
+    for date in dates:
+        date_array.append(format_date(str(date['content']), 'greekberkley'))
+
+
+    # select link and add to array 
+    links = soup.find_all('a', attrs={'target': '_blank'})
+    for link in links:
+        link_array.append(str(link['href']).strip())
+        
+    # iterate through arrays and add to json object 
+    i = 0
+    while(i < len(headliner_array)):
+        data.append("Venue Website", "Greek Theatre-U.C. Berkeley", headliner_array[i], date_array[i], link_array[i])
+        i+=1
+
+    # close the connection 
+    driver.close() 
+    return
+    
 
 # Scrape Hollywood Bowl Hollywood ###################################################################################################
 def hollywood(data):
-    return 
+    # initiating the web driver
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome('./chromedriver', options=chrome_options)
+    driver.get('https://www.hollywoodbowl.com/events/performances?Venue=Hollywood+Bowl&Season=null') 
+
+    # get the source html 
+    html = driver.page_source
+    # render all JS and stor as static html
+    soup = BeautifulSoup(html, "html.parser")
+
+    # create arrays to fill with data 
+    venue_array = []
+    headliner_array = []
+    date_array = []
+    link_array = []
+
+    # select headliner and add to array 
+    headliners = soup.find_all('span', class_="name name--short")
+
+    for headliner in headliners:
+        headliner_array.append(str(headliner.text).strip())
+        # link_array.append(str(headliner['href']).strip())
+
+    # select date and add to array 
+
+    # select link and add to array 
+    links = soup.find_all('a', class_="btn performance-buy-btn")
+    for link in links:
+        link_array.append(str(link['href']).strip())
+
+    # iterate through arrays and add to json object 
+    i = 0
+    while(i < len(headliner_array)):
+        data.append("Venue Website", "venue name", headliner_array[i], "date_array[i]", link_array[i])
+        i+=1
+
+    # close the connection 
+    driver.close() 
+    return
+   
 
 # Scrape Honda Center ###############################################################################################################
 def honda(data):
@@ -390,10 +549,10 @@ def main():
     # collect data from each website 
     # SB(data)
     # fonda(data)
-    forum(data)
+    # forum(data)
     # greekLA(data)
     # greekBerkley(data)
-    # hollywood(data)
+    hollywood(data)
     # honda(data)
     # microsoft(data)
     # novo(data)
