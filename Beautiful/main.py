@@ -13,7 +13,7 @@ def mail(email_address):
 
     # Create email object
     message = MIMEMultipart('mixed')
-    message['From'] = 'Bot <{sender}>'.format(sender = gmail)
+    message['From'] = 'Ticket Bot <{sender}>'.format(sender = gmail)
     message['To'] = email_address 
     # message['CC'] = 'contact@company.com'
     message['Subject'] = 'Tickets'
