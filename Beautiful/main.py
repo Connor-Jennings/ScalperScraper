@@ -20,7 +20,7 @@ def mail(email_address):
 
 
     # open json file and parse data for email body 
-    w = open("./JsonFiles/newEventsFound.json", "rt")
+    w = open("../../JsonFiles/newEventsFound.json", "rt")
     newEvents = json.load(w)
     msg_content = "Events added or changed : \n\n"
     if len(newEvents) > 0 :
@@ -37,7 +37,7 @@ def mail(email_address):
         message.attach(body)
 
         # attach file 
-        attachmentPath = "./JsonFiles/newDay.json"
+        attachmentPath = "../../JsonFiles/newDay.json"
         try:
             with open(attachmentPath, "rb") as attachment:
                 p = MIMEApplication(attachment.read(),_subtype="json")	
