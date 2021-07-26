@@ -88,6 +88,7 @@ def main():
             os.system("python3 parseData.py")
         for x in recipients:
             mail(x)
+        return
 
     # only parse 
     elif "p" in argv:
