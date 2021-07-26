@@ -20,7 +20,7 @@ def mail(email_address):
 
 
     # open json file and parse data for email body 
-    w = open("../../JsonFiles/newEventsFound.json", "rt")
+    w = open("./JsonFiles/newEventsFound.json", "rt")
     newEvents = json.load(w)
     msg_content = "Events added or changed : \n\n"
     if len(newEvents) > 0 :
