@@ -70,26 +70,13 @@ def mail(email_address):
 
 
 def main():
-    # total arguments
-    args = sys.argv[0:]
-    n = len(args)
-    print("Total arguments passed:", n)
-    i=0
-    for x in args:
-        print(f"Arg[{i}] =  {x}")
-        i+=1
- 
-    # Arguments passed
-    print("\nName of Python script:", sys.argv[0])
-    
-
    
-    # os.system("python3 scrapeAllSites.py")
-    # os.system("python3 parseData.py")
+    os.system("python3 scrapeAllSites.py")
+    os.system("python3 parseData.py")
 
-    # recipients = ['jennings.co.d@gmail.com']
-    # for x in recipients:
-    #     mail(x)
+    recipients = ['jennings.co.d@gmail.com']
+    for x in recipients:
+        mail(x)
 
 if __name__ == "__main__":
     main()
