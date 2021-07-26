@@ -37,7 +37,7 @@ def mail(email_address):
         message.attach(body)
 
         # attach file 
-        attachmentPath = "../../JsonFiles/newDay.json"
+        attachmentPath = "./JsonFiles/newDay.json"
         try:
             with open(attachmentPath, "rb") as attachment:
                 p = MIMEApplication(attachment.read(),_subtype="json")	

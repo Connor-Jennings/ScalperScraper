@@ -32,7 +32,7 @@ class JsonInstance:
 
 
     def output(self, file_name):
-        name = "../../JsonFiles/" + file_name
+        name = "./JsonFiles/" + file_name
         f = open(name, "w")
         f.write(json.dumps(self.json_array))
         f.close() 
