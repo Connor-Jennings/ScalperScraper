@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 import json
-
+import sys
 
 
 def storeNewDay():
@@ -56,8 +56,15 @@ def main():
     w = open("./JsonFiles/newEventsFound.json", "w")
     w.write(json.dumps(newEvents))
 
+    argv = sys.argv[1:]
+
     storeNewDay()
-    #monthlyStorage()
+    # monthlyStorage()
+
+    # if y is passed in dont replace old day 
+    if "y" in argv :
+       return 
+       
     replaceOldDayWithNew()
 
 

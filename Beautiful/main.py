@@ -70,13 +70,48 @@ def mail(email_address):
 
 
 def main():
-   
-    # os.system("python3 scrapeAllSites.py")
-    os.system("python3 parseData.py")
-
+    argv = sys.argv[1:]
     recipients = ['jennings.co.d@gmail.com']
-    for x in recipients:
-        mail(x)
+
+    # help command
+    if "h" in argv:
+        option = "\nOptions :  \n \t  a - run everything               \n \t  s - only scrape    \n \t  p - only parse  \n \t \t y - dont relplace old file (can pass this in 'a' too) \n \t  m - only send mail \n "
+        print(option)
+        return 
+
+    # run all systems  
+    elif "a" in argv:
+        os.system("python3 scrapeAllSites.py")
+        if "y" in argv : # if y in then dont replace oldDay
+            os.system("python3 parseData.py y")
+        else:
+            os.system("python3 parseData.py")
+        for x in recipients:
+            mail(x)
+
+    # only parse 
+    elif "p" in argv:
+        if "y" in argv :
+            os.system("python3 parseData.py y")
+        else:
+            os.system("python3 parseData.py")
+        return  
+
+    # only send mail
+    elif "m" in argv:
+        recipients = ['jennings.co.d@gmail.com']
+        for x in recipients:
+            mail(x)
+        return    
+
+    # only run scrape program
+    elif "s" in argv:
+        os.system("python3 scrapeAllSites.py")
+        return 
+    
+    print("No arguments passed... (for help) Try -> python3 main.py h ")
+
+
 
 if __name__ == "__main__":
     main()
