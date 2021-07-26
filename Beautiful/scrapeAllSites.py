@@ -1,12 +1,15 @@
 import requests 
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
+import ticketpy
 import time
 import json
 import re
 import datetime
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
+
+
 #####################################################################################################################################
 #####################################################################################################################################
 #                                             Useful Functions & Classes                                                            #                 
@@ -87,7 +90,10 @@ def format_date(u_date,site):
         return str(date.strftime("%x"))
     
     elif site == "axs":
-        # split = re.split("-", u_date) ########## idk if this is necessary  -> go back and test this
+        u_date = re.sub("\n", "", u_date)
+        u_date = re.sub("  ", "", u_date)
+        u_date = re.sub("Starting", "", u_date)
+
         split = re.split(" ", u_date)
 
         year = split[3][2] + split[3][3]
@@ -765,8 +771,147 @@ def grammy(driver, data):
 
 #####################################################################################################################################
 #####################################################################################################################################
+#                                                  AXS and Ticketmaster                                                             #
+#####################################################################################################################################
+
+# Now find ticketmaster data ########################################################################################################
+def ticketMaster(data):
+    ticketmaster_phoneBook = [
+        "Santa Barbara Bowl", 
+        "The Fonda Theatre", 
+        "The Forum Inglewood",
+        "Greek Theatre Los Angeles", 
+        "Greek Theatre-U.C. Berkeley",
+        "Hollywood Bowl Hollywood", 
+        "Honda Center", 
+        "Microsoft Theater", 
+        "The Novo by Microsoft", 
+        "STAPLES Center"
+    ]
+    # my ticketmaster api
+    tm_client = ticketpy.ApiClient('0ECTgjObHZdKCOMWADFoURoC6wxYIqpA')
+
+    for listing in ticketmaster_phoneBook:
+
+        # create arrays to fill with data 
+        headliner_array = []
+        date_array = []
+        #status_array = []
+        link_array = []
+
+        # query ticketmaster 
+        attractions = tm_client.events.find(
+            keyword = str(listing)
+        )
+
+        # fill data into arrays 
+        for events in attractions:
+            for details in events:
+                headliner_array.append(str(details.name).strip())
+                date = format_date(str(details.utc_datetime).strip(), "Ticketmaster")
+                date_array.append(date)
+                #status_array.append(str(details.status).strip())
+                link_array.append(str(details.json['url']).strip())
+
+        # add to json object 
+        i = 0
+        while(i < len(headliner_array)):
+            data.append("Ticketmaster", str(listing), headliner_array[i], date_array[i], link_array[i])
+            i+=1
+    return
+
+# Now find axs data  #############################################################################################################        
+def axs(driver, data):
+    
+    axs_phoneBook = {
+        "Santa Barbara Bowl" : "https://www.axs.com/venues/101207/santa-barbara-bowl-santa-barbara-tickets?q=santa+barbara+bowl&cat=7",
+        "The Fonda Theatre" : "https://www.axs.com/venues/120969/fonda-theatre-los-angeles-tickets?q=The+Fonda+Theatre+LA&cat=7",
+        "The Forum Inglewood" : "https://www.axs.com/venues/101627/the-forum-inglewood-tickets?q=the+forum&cat=7",
+        "Greek Theatre Los Angeles" : "https://www.axs.com/venues/101546/the-greek-theatre-los-angeles-tickets?q=Greek+theatre&cat=7",
+        "Greek Theatre-U.C. Berkeley" : "https://www.axs.com/venues/100974/the-greek-theatre-at-u-c-berkeley-berkeley-tickets?q=Greek+theatre&cat=7",
+        # "Hollywood Bowl" : "https://www.axs.com/venues/101545/hollywood-bowl-hollywood-tickets?q=hollywood+bowl&cat=7" NOT ON axs
+        # Neither is honda center
+        "Microsoft Theater" :"https://www.axs.com/venues/101406/microsoft-theater-los-angeles-tickets?q=microsoft+theatre&cat=7",
+        "The Novo by Microsoft" : "https://www.axs.com/venues/101912/the-novo-los-angeles-tickets?q=The+Novo&cat=7",
+        "Shrine Auditorium" : "https://www.axs.com/venues/123568/shrine-auditorium-los-angeles-tickets?q=shrine+auditorium&cat=7",
+        "STAPLES Center" : "https://www.axs.com/venues/101242/staples-center-los-angeles-tickets?q=staples+center&cat=7"
+        # Nothing for grammy museum 
+    }
+    
+    for listing in axs_phoneBook:
+        driver.get(axs_phoneBook[listing])  # get(url)
+
+        # just to ensure the page is loaded
+        # time.sleep(2.5)
+
+        # get the source html 
+        html = driver.page_source
+
+        # this renders all the JS code and stores all 
+        # of the information in static HTML code
+        # Now, we can simply apply bs4 to html variable 
+        soup = BeautifulSoup(html, "html.parser")
+
+
+        #featured section
+        featured_headliner1 = soup.select('#event-featured-section > div.c-featured-event__container > div:nth-child(1) > div.c-featured-event__info-container > div.c-featured-event__description > div > div.c-marquee.c-marquee--sm.c-event__marquee > h1 > a')
+        featured_headliner2 = soup.select('#event-featured-section > div.c-featured-event__container > div:nth-child(2) > div.c-featured-event__info-container > div.c-featured-event__description > div > div.c-marquee.c-marquee--sm.c-event__marquee > h1 > a')
+        featured_dates = soup.find_all('div', class_='c-featured-event__date')
+
+
+        # upcoming events section 
+        upcoming_headliners = soup.find_all('div', class_='headliner')
+        upcoming_dates = soup.find_all('span', class_='date-wrapper')
+        upcoming_ticketLink = soup.find_all('a', class_='display-table-row events_link', href=True)
+
+        # create arrays to fill with data 
+        venue_array = []
+        headliner_array = []
+        date_array = []
+        link_array = []
+
+        # append data to arrays
+        for headliner in featured_headliner1:
+            headliner_array.append(str(headliner.text).strip())
+            link_array.append(str(headliner['href']).strip())
+            
+        for headliner in featured_headliner2:
+            headliner_array.append(str(headliner.text).strip())
+            link_array.append(str(headliner['href']).strip())
+            
+        for date in featured_dates:
+            broken_date = str(date.text).strip().splitlines()
+            final_date = format_date(broken_date[0], "axs")
+            date_array.append(final_date)
+            venue_array.append(listing)
+        
+        for headliner in upcoming_headliners:
+            headliner_array.append(str(headliner.text).strip())
+            
+        for date in upcoming_dates:
+            final_date = format_date(str(date.text).strip(), "axs")
+            date_array.append(final_date)
+            venue_array.append(listing)
+            
+        for link in upcoming_ticketLink:
+            link_array.append(str(link['href']).strip())
+            
+
+
+        # add to json object 
+        i = 0
+        while(i < len(headliner_array)):
+            data.append("axs", str(listing), headliner_array[i], date_array[i], link_array[i])
+            i+=1
+
+    return 
+
+
+#####################################################################################################################################
+#####################################################################################################################################
 #                                                   Main                                                                            #
 #####################################################################################################################################
+
 
 def main():
     # create json instance 
@@ -782,7 +927,10 @@ def main():
     chrome_options.add_argument("--no-sandbox")
     driver = webdriver.Chrome('./chromedriver', options=chrome_options)
     
+    
     # collect data from each website 
+    ticketMaster(data)
+    axs(driver, data)
     SB(driver, data)
     fonda(driver, data)
     forum(driver, data)
@@ -790,14 +938,14 @@ def main():
     greekBerkley(driver, data)
     hollywood(driver, data)
     honda(driver, data)
-    microsoft(driver, data)
+    # microsoft(driver, data)       # needs date and ticket link 
     novo(driver, data)
     shrine(driver, data)
-    staples(driver, data)
-    # grammy(driver, data)
+    # staples(driver, data)        # needs date 
+    # grammy(driver, data)         # check with nicole to see which site 
 
     # output to json file 
-    data.output("venueSitesData.json")
+    data.output("newDay.json")
     # close the connection 
     driver.close() 
 
