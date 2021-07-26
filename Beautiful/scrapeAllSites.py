@@ -197,6 +197,17 @@ def format_date(u_date,site):
         date += year[2] + year[3]
         return date
 
+    elif site == "staples":
+        u_date = re.sub("  ", " ", u_date)
+        split = re.split(" ", u_date)
+        date = months[split[0]] + "/"
+        if int(split[1]) < 10:
+            split[1] = "0"+split[1]
+        date += split[1]+"/"
+        year= str(split[2])
+        date += year[2] + year[3]
+        return date
+
     return u_date
 #####################################################################################################################################
 def find_year(element):
@@ -587,16 +598,16 @@ def microsoft(driver, data):
         time = date['aria-label']
         date_array.append(time)
     
-    # # select link and add to array 
-    # links = soup.find_all('a', class_="button-round event-list-ticket-link")                                  #### link needs work here #####
+    # select link and add to array 
+    links = soup.find_all('a', attrs={"title": "More Info"})                                  #### link needs work here #####
 
-    # for link in links:
-    #     link_array.append(str(link['href']).strip())
+    for link in links:
+        link_array.append(str(link['href']).strip())
         
     # iterate through arrays and add to json object 
     i = 0
     while(i < len(date_array)):
-        data.append("Venue Website", "Microsoft Theater", headliner_array[i], date_array[i], "link_array[i]")
+        data.append("Venue Website", "Microsoft Theater", headliner_array[i], date_array[i], link_array[i])
         i+=1
 
     return
@@ -704,57 +715,49 @@ def staples(driver, data):
     headliner_array = []
     date_array = []
     link_array = []
+    all_events = [] # we need to collect all the more info links and then go to that page to grab all of the events bc the way they grouped dates for artists 
 
-    # select headliner and add to array 
-    headliners = soup.find_all('h3', class_='title')
+    # select all more info links and add them to all_events
+    events = soup.find_all('a', attrs={"title": "More Info"})
 
-    for headliner in headliners:
-        headliner_array.append(str(headliner.text).strip())
-        
-    # select date and add to array                                                                          ##### this date needs a bunch of work #########
-    dates = soup.find_all('div', class_='date')
-    for date in dates:
-        date = date['aria-label']
-        date_array.append(date)
-
-
-    # more_info = len(driver.find_elements_by_css_selector("title.More Info"))
-
-    # for info_num in range(1,more_info):
-    #     # day = date.find('div')
-    #     # date = day['aria-label']
-    #     # date_array.append(date)
-    #      # get the source html 
-
-    #     # click on each more info link 
-    #     # search = info.find_elements_by_tag_name('h3')
-    #     driver.find_elements_by_css_selector('title.More Info')[info_num].click()
-        
-
-    #     html = driver.page_source
-    #     # render all JS and stor as static html
-    #     soup = BeautifulSoup(html, "html.parser")
-
-    #     # iterate through dates and append 
-    #     dates = soup.find_all('span', class_='cell')
-    #     for date in dates:
-    #         date = date['aria-label']
-    #         date_array.append(date)
-
-    #     driver.back()
+    for event in events:
+        all_events.append(event['href'])
     
+    for event in all_events:
+        # go to each about page 
+        driver.get(str(event))
+        html = driver.page_source
+        soup = BeautifulSoup(html, "html.parser")
 
-
-    # select link and add to array 
-    links = soup.find_all('div', class_='buttons')
-
-     
-    for link in links:
+        # grab event title 
+        title = ""
         try:
-            a = link.find('a')['href']
-            link_array.append(str(a))
+            title = str(soup.find('h1', class_="title no_tagline").text).strip()
         except:
-            link_array.append("tbd")
+            title = str(soup.find('h1', class_="title has_tagline").text).strip()
+        
+        # grab dates 
+        try:
+            show_wrapper = soup.find('div', class_="showings-wrapper")
+            dates = show_wrapper.find_all('div', class_="top-row")
+            for date in dates:
+                headliner_array.append(title)                           # add in title here so we can keep all arrays the same size
+                new_date = date.find('span')
+                new_date = format_date(str(new_date['aria-label']).strip(), "staples")
+                date_array.append(new_date)
+        except:
+            headliner_array.append(title)
+            date_array.append("tbd")
+
+
+        # grab links 
+        links = soup.find_all('a', class_="tickets onsalenow")
+        for link in links:
+            try:        
+                link_array.append(str(link['href']).strip())
+            except:
+               link_array.append("nolink")
+
 
     # iterate through arrays and add to json object 
     i = 0
@@ -938,10 +941,10 @@ def main():
     greekBerkley(driver, data)
     hollywood(driver, data)
     honda(driver, data)
-    # microsoft(driver, data)       # needs date and ticket link 
+    microsoft(driver, data)       
     novo(driver, data)
     shrine(driver, data)
-    # staples(driver, data)        # needs date 
+    staples(driver, data)         
     # grammy(driver, data)         # check with nicole to see which site 
 
     # output to json file 

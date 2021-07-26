@@ -8,8 +8,8 @@ import json
 
 def mail(email_address):
     # username and password for gmail 
-    gmail =  'connorwork123321@gmail.com'
-    password = '6711Connor'
+    gmail =  'ticketbot98@gmail.com'
+    password = 'saladsareascam'
 
     # Create email object
     message = MIMEMultipart('mixed')
