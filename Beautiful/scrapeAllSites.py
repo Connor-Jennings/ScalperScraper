@@ -285,10 +285,15 @@ def SB(driver, data):
 
 
     # select link and add to array 
-    ticketLinks = soup.find_all('a', attrs={"data-event-category":"ticket_link"})
-    for ticketLink in ticketLinks:
+    ticket_container = soup.find_all("div", class_="row-fluid singleEventConcerts")
+    
+    for ticket in ticket_container:
+        ticketLink = ticket.find('a')
         link = ticketLink.get('href')
         link_array.append(str(link).strip())
+
+   
+
             
     # add data to json object 
     i = 0
