@@ -5,8 +5,8 @@ import sys
 
 def storeNewDay():
     # store data everyday for reference
-    today = "./JsonFiles/" + str(date.today()) + ".json"
-    f = open("./JsonFiles/newDay.json", "rt")
+    today = "/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/" + str(date.today()) + ".json"
+    f = open("/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/newDay.json", "rt")
     w = open(today, "w")
     w.write(f.read())
     f.close() 
@@ -18,8 +18,8 @@ def monthlyStorage():
     dayNumber = date.today()
     num = str(dayNumber.day)
     if num == "21":
-        today = str(date.today()) + ".json"
-        f = open("newDay.json", "rt")
+        today = "/Users/connorjennings/Code/ScalperScraper/Beautiful"+str(date.today()) + ".json"
+        f = open("/Users/connorjennings/Code/ScalperScraper/Beautiful/newDay.json", "rt")
         w = open(today, "w")
         w.write(f.read())
         f.close() 
@@ -27,8 +27,8 @@ def monthlyStorage():
 
 def replaceOldDayWithNew():
     #update "oldDay.json" with today's data 
-    f = open("./JsonFiles/newDay.json", "rt")
-    w = open("./JsonFiles/oldDay.json", "w")
+    f = open("/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/newDay.json", "rt")
+    w = open("/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/oldDay.json", "w")
     w.write(f.read())
     f.close() 
     w.close()
@@ -45,15 +45,15 @@ def findNewEntries(new_data, old_data):
 
 
 def main():
-    f = open("./JsonFiles/newDay.json", "rt")
+    f = open("/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/newDay.json", "rt")
     new_data = json.load(f)
     f.close()
-    f = open("./JsonFiles/oldDay.json", "rt")
+    f = open("/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/oldDay.json", "rt")
     old_data = json.load(f)
     f.close()
 
     newEvents = findNewEntries(new_data, old_data)
-    w = open("./JsonFiles/newEventsFound.json", "w")
+    w = open("/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/newEventsFound.json", "w")
     w.write(json.dumps(newEvents))
 
     argv = sys.argv[1:]

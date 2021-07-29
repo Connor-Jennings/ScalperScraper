@@ -20,7 +20,7 @@ def mail(email_address):
 
 
     # open json file and parse data for email body 
-    w = open("./JsonFiles/newEventsFound.json", "rt")
+    w = open("/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/newEventsFound.json", "rt")
     newEvents = json.load(w)
     msg_content = "Events added or changed : \n\n"
     if len(newEvents) > 0 :
@@ -37,7 +37,7 @@ def mail(email_address):
         message.attach(body)
 
         # attach file 
-        attachmentPath = "./JsonFiles/newDay.json"
+        attachmentPath = "/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/newDay.json"
         try:
             with open(attachmentPath, "rb") as attachment:
                 p = MIMEApplication(attachment.read(),_subtype="json")	
@@ -81,11 +81,11 @@ def main():
 
     # run all systems  
     elif "a" in argv:
-        os.system("python3 scrapeAllSites.py")
+        os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/scrapeAllSites.py")
         if "y" in argv : # if y in then dont replace oldDay
-            os.system("python3 parseData.py y")
+            os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/parseData.py y")
         else:
-            os.system("python3 parseData.py")
+            os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/parseData.py")
         for x in recipients:
             mail(x)
         return
@@ -93,9 +93,9 @@ def main():
     # only parse 
     elif "p" in argv:
         if "y" in argv :
-            os.system("python3 parseData.py y")
+            os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/parseData.py y")
         else:
-            os.system("python3 parseData.py")
+            os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/parseData.py")
         return  
 
     # only send mail
@@ -107,7 +107,7 @@ def main():
 
     # only run scrape program
     elif "s" in argv:
-        os.system("python3 scrapeAllSites.py")
+        os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/scrapeAllSites.py")
         return 
     
     print("No arguments passed... (for help) Try -> python3 main.py h ")

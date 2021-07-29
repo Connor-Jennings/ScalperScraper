@@ -32,7 +32,7 @@ class JsonInstance:
 
 
     def output(self, file_name):
-        name = "./JsonFiles/" + file_name
+        name = "/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/" + file_name
         f = open(name, "w")
         f.write(json.dumps(self.json_array))
         f.close() 
@@ -933,7 +933,7 @@ def main():
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome('./chromedriver', options=chrome_options)
+    driver = webdriver.Chrome('/Users/connorjennings/Code/ScalperScraper/Beautiful/chromedriver', options=chrome_options)
     
     
     # collect data from each website 
@@ -953,7 +953,7 @@ def main():
     # grammy(driver, data)         # check with nicole to see which site 
 
     # output to json file 
-    data.output("newDay.json")
+    data.output("/Users/connorjennings/Code/ScalperScraper/Beautiful/newDay.json")
     # close the connection 
     driver.close() 
 
