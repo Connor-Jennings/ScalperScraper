@@ -5,6 +5,20 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText 
 from email.mime.application import MIMEApplication
 import json
+import csv
+
+import requests 
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.options import Options
+
+
+
+#####################################################################################################################################
+#####################################################################################################################################
 
 def mail(email_address):
     # username and password for gmail 
@@ -36,7 +50,8 @@ def mail(email_address):
         body = MIMEText(msg_content)
         message.attach(body)
 
-        # attach file 
+        ####### attach files #####
+        # # attach json file 
         attachmentPath = "/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/newDay.json"
         try:
             with open(attachmentPath, "rb") as attachment:
@@ -45,6 +60,31 @@ def mail(email_address):
                 message.attach(p)
         except Exception as e:
             print(str(e))
+
+        # create cvs file
+        with open('/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/newDay.json') as json_file:
+            jsondata = json.load(json_file)
+        
+        data_file = open('/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/newDay.csv', 'w', newline='')
+        csv_writer = csv.writer(data_file)
+        
+        count = 0
+        for data in jsondata:
+            if count == 0:
+                header = data.keys()
+                csv_writer.writerow(header)
+                count += 1
+            csv_writer.writerow(data.values())
+        
+        data_file.close()
+        attachmentPath = "/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/newDay.cvs"
+        # attach csv file 
+        with open("/Users/connorjennings/Code/ScalperScraper/Beautiful/JsonFiles/newDay.csv", "rb") as attachment:
+            p = MIMEApplication(attachment.read(),_subtype="csv")	
+            p.add_header('Content-Disposition', "attachment; filename= %s" % attachmentPath.split("\\")[-1]) 
+            message.attach(p)
+        ###########################
+       
 
         # convert message to string 
         msg_full = message.as_string()
@@ -67,6 +107,44 @@ def mail(email_address):
     else:
         print("No changes to send")
 
+
+#####################################################################################################################################
+def getemails():
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome('/Users/connorjennings/Code/ScalperScraper/Beautiful/chromedriver', options=chrome_options)
+    
+    driver.get('https://www.saladsareascam.com/wp-admin/users.php') 
+
+    # log into site
+    username = driver.find_element_by_id("user_login")
+    password = driver.find_element_by_id("user_pass")
+    username.send_keys("user")
+    password.send_keys("FJS3hgDG2Abv")
+    response = driver.find_element_by_id("wp-submit").click()
+
+    # get the source html 
+    html = driver.page_source
+    # render all JS and stor as static html
+    soup = BeautifulSoup(html, "html.parser")
+    
+    # grab all the emails
+    email_array = []
+    container = soup.find_all('td', class_="email column-email")
+    for item in container:
+        email = str(item.find('a').text)
+        email_array.append(email)
+    return email_array
+
+
+
+#####################################################################################################################################
+#                                                     Main                                                                          #
+#####################################################################################################################################
 
 
 def main():

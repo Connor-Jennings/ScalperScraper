@@ -7,6 +7,8 @@ import datetime
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 
 
@@ -172,6 +174,16 @@ def format_date(u_date,site):
         if int(split[2]) < 10:
             split[2] = "0"+split[2]
         date += split[2] + "/" + year[2] + year[3]
+        return date
+    
+    elif site == "microsoft":
+        split = u_date.replace("  "," ")
+        split = re.split(" ", split)
+        date = months[split[0]] + "/"
+        if int(split[1]) < 10:
+            split[1] = "0"+split[1]
+        year= str(split[2])
+        date += split[1] + "/" + year[2] + year[3]
         return date
 
     elif site == "novo":
@@ -601,10 +613,11 @@ def microsoft(driver, data):
 
     for date in dates:
         time = date['aria-label']
+        time = format_date(time, "microsoft")
         date_array.append(time)
     
     # select link and add to array 
-    links = soup.find_all('a', attrs={"title": "More Info"})                                  #### link needs work here #####
+    links = soup.find_all('a', attrs={"title": "More Info"})                                  
 
     for link in links:
         link_array.append(str(link['href']).strip())
@@ -953,7 +966,7 @@ def main():
     # grammy(driver, data)         # check with nicole to see which site 
 
     # output to json file 
-    data.output("/Users/connorjennings/Code/ScalperScraper/Beautiful/newDay.json")
+    data.output("newDay.json")
     # close the connection 
     driver.close() 
 
