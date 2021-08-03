@@ -100,10 +100,10 @@ def mail(email_address):
             server.starttls(context=context)
             server.ehlo()
             server.login(gmail, password)
-            server.sendmail(gmail, "jennings.co.d@gmail.com", msg_full)
+            server.sendmail(gmail, email_address, msg_full)
             server.quit()
 
-        print("Email sent!")
+        print("Email sent to : " + email_address)
     else:
         print("No changes to send")
 
@@ -149,7 +149,7 @@ def getemails():
 
 def main():
     argv = sys.argv[1:]
-    recipients = ['jennings.co.d@gmail.com']
+    recipients = ["jennings.co.d@gmail.com"] # getemails()
 
     # help command
     if "h" in argv:
@@ -178,7 +178,6 @@ def main():
 
     # only send mail
     elif "m" in argv:
-        recipients = ['jennings.co.d@gmail.com']
         for x in recipients:
             mail(x)
         return    
