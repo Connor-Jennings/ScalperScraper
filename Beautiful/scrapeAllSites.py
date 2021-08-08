@@ -92,18 +92,20 @@ def format_date(u_date,site):
         return str(date.strftime("%x"))
     
     elif site == "axs":
-        u_date = re.sub("\n", "", u_date)
-        u_date = re.sub("  ", "", u_date)
-        u_date = re.sub("Starting", "", u_date)
+        try:
+            u_date = re.sub("\n", "", u_date)
+            u_date = re.sub("  ", "", u_date)
+            u_date = re.sub("Starting", "", u_date)
 
-        split = re.split(" ", u_date)
+            split = re.split(" ", u_date)
 
-        year = split[3][2] + split[3][3]
-        month = months[split[1]]
-        day = re.split(",",split[2])[0] 
+            year = split[3][2] + split[3][3]
+            month = months[split[1]]
+            day = re.split(",",split[2])[0] 
 
-        return month+"/"+day+"/"+year
-    
+            return month+"/"+day+"/"+year
+        except:
+            return "n/a"
     elif site == "fonda" or site == "sbbowl":
         split = re.sub(",", "", u_date)
         split = re.split(" ", split)
@@ -572,15 +574,16 @@ def honda(driver, data):
         date_array.append(date)
     
     # select link and add to array 
-    links = soup.find_all('a', class_="button-round event-list-ticket-link")
+    links = soup.find_all('a', class_="event-list-details-link")
 
     for link in links:
         link_array.append(str(link['href']).strip())
         
+    
     # iterate through arrays and add to json object 
     i = 0
     while(i < len(headliner_array)):
-        data.append("Venue Website", "Honda Center", headliner_array[i], date_array[i], link_array[i])
+        data.append("Venue Website", "Honda Center", headliner_array[i], date_array[i], "https://www.hondacenter.com/"+link_array[i])
         i+=1
 
     return
@@ -752,7 +755,7 @@ def staples(driver, data):
         try:
             title = str(soup.find('h1', class_="title no_tagline").text).strip()
         except:
-            title = str(soup.find('h1', class_="title has_tagline").text).strip()
+            title = str(soup.find('h1', class_="title").text).strip()
         
         # grab dates 
         try:

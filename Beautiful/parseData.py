@@ -58,7 +58,7 @@ def main():
 
     argv = sys.argv[1:]
 
-    storeNewDay()
+    # storeNewDay()
     # monthlyStorage()
 
     # if y is passed in dont replace old day 

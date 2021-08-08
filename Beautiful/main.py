@@ -7,6 +7,9 @@ from email.mime.application import MIMEApplication
 import json
 import csv
 
+import time
+from datetime import datetime
+
 import requests 
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -20,7 +23,7 @@ from selenium.webdriver.chrome.options import Options
 #####################################################################################################################################
 #####################################################################################################################################
 
-def mail(email_address):
+def mail(email_address, error):
     # username and password for gmail 
     gmail =  'ticketbot98@gmail.com'
     password = 'saladsareascam'
@@ -47,7 +50,10 @@ def mail(email_address):
             msg_content += "\tticketLink: " + event['ticketLink'] + "\n\n\n"
 
         # attach email body 
-        body = MIMEText(msg_content)
+        if(error == False):
+            body = MIMEText(msg_content)
+        elif(error == True):
+            body = MIMEText("error")
         message.attach(body)
 
         ####### attach files #####
@@ -153,19 +159,44 @@ def main():
 
     # help command
     if "h" in argv:
-        option = "\nOptions :  \n \t  a - run everything               \n \t  s - only scrape    \n \t  p - only parse  \n \t \t y - dont relplace old file (can pass this in 'a' too) \n \t  m - only send mail \n "
+        option = "\nOptions : \n \t  runforever - run on a continuous loop forever      \n \t  a - run everything     \n \t  s - only scrape    \n \t  p - only parse  \n \t \t y - dont relplace old file (can pass this in 'a' too) \n \t  m - only send mail \n "
         print(option)
         return 
 
+    # run forever
+    elif "runforever" in argv:
+        while True:
+            now = datetime.now()
+            dt_string = now.strftime("%H")
+            if dt_string == "04":
+                while True:
+                    try:
+                        os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/scrapeAllSites.py")
+                        os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/parseData.py") 
+                        for x in recipients:
+                            mail(x, False)
+                        # sleep for one day 
+                        time.sleep(86400)
+                    except:
+                        mail("jennings.co.d@gmail.com", True)
+                        return
+            else: 
+                # sleep for one hour 
+                time.sleep(3600)
+        
+        
     # run all systems  
     elif "a" in argv:
-        os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/scrapeAllSites.py")
-        if "y" in argv : # if y in then dont replace oldDay
-            os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/parseData.py y")
-        else:
-            os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/parseData.py")
-        for x in recipients:
-            mail(x)
+        try:
+            os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/scrapeAllSites.py")
+            if "y" in argv : # if y in then dont replace oldDay
+                os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/parseData.py y")
+            else:
+                os.system("python3 /Users/connorjennings/Code/ScalperScraper/Beautiful/parseData.py") 
+            for x in recipients:
+                mail(x, False)
+        except:
+            mail("jennings.co.d@gmail.com", True)
         return
 
     # only parse 
@@ -179,7 +210,7 @@ def main():
     # only send mail
     elif "m" in argv:
         for x in recipients:
-            mail(x)
+            mail(x, False)
         return    
 
     # only run scrape program
